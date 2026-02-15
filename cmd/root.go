@@ -10,11 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	configFile string
-	// Forward declaration - actual implementation in config.go
-	runInteractiveConfig func()
-)
+var configFile string
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
