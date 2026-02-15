@@ -39,19 +39,32 @@ func (i *Instance) Start() error {
 		return fmt.Errorf("instance %s is already running", i.Config.Name)
 	}
 
+	configPath := i.Config.ConfigPath
+	
+	// If auth file is specified, we need to handle the auth-user-pass directive
+	if i.Config.AuthFile != "" {
+		var err error
+		configPath, err = i.prepareConfig()
+		if err != nil {
+			return fmt.Errorf("failed to prepare config: %w", err)
+		}
+		// Clean up temp config on stop
+		defer func() {
+			if i.Status != "running" && configPath != i.Config.ConfigPath {
+				// Only remove if start failed
+				exec.Command("rm", "-f", configPath).Run()
+			}
+		}()
+	}
+
 	// Build OpenVPN command
 	args := []string{
-		"--config", i.Config.ConfigPath,
+		"--config", configPath,
 		"--dev", i.Config.TunDevice,
 		"--dev-type", "tun",
 		"--log", fmt.Sprintf("/var/log/openvpn-%s.log", i.Config.TunDevice),
 		"--daemon",
 		"--writepid", fmt.Sprintf("/var/run/openvpn-%s.pid", i.Config.TunDevice),
-	}
-
-	// Add auth file if specified
-	if i.Config.AuthFile != "" {
-		args = append(args, "--auth-user-pass", i.Config.AuthFile)
 	}
 
 	// Create command
@@ -77,6 +90,50 @@ func (i *Instance) Start() error {
 	return nil
 }
 
+// prepareConfig creates a temporary config file with auth-user-pass directive properly set
+func (i *Instance) prepareConfig() (string, error) {
+	// Read original config
+	content, err := exec.Command("cat", i.Config.ConfigPath).Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to read config: %w", err)
+	}
+
+	configStr := string(content)
+	lines := strings.Split(configStr, "\n")
+	
+	// Check if auth-user-pass exists and needs modification
+	hasAuthUserPass := false
+	for idx, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		// Check for bare "auth-user-pass" or "auth-user-pass " (with trailing space)
+		if trimmed == "auth-user-pass" || strings.HasPrefix(trimmed, "auth-user-pass ") {
+			// Replace with auth file path
+			lines[idx] = "auth-user-pass " + i.Config.AuthFile
+			hasAuthUserPass = true
+			log.Printf("Replacing auth-user-pass directive with file path for %s", i.Config.Name)
+			break
+		}
+	}
+	
+	// If no auth-user-pass found, add it
+	if !hasAuthUserPass {
+		lines = append(lines, "auth-user-pass "+i.Config.AuthFile)
+		log.Printf("Adding auth-user-pass directive for %s", i.Config.Name)
+	}
+	
+	// Create temporary config file
+	tmpConfig := fmt.Sprintf("/tmp/openvpn-%s-%d.ovpn", i.Config.Name, time.Now().Unix())
+	newContent := strings.Join(lines, "\n")
+	
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("cat > %s", tmpConfig))
+	cmd.Stdin = strings.NewReader(newContent)
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("failed to write temp config: %w", err)
+	}
+	
+	return tmpConfig, nil
+}
+
 // Stop stops the OpenVPN instance
 func (i *Instance) Stop() error {
 	i.mu.Lock()
@@ -93,6 +150,10 @@ func (i *Instance) Stop() error {
 		}
 		i.Process.Wait()
 	}
+
+	// Clean up temporary config file if it exists
+	tmpPattern := fmt.Sprintf("/tmp/openvpn-%s-*.ovpn", i.Config.Name)
+	exec.Command("bash", "-c", fmt.Sprintf("rm -f %s", tmpPattern)).Run()
 
 	i.Status = "stopped"
 	log.Printf("Stopped OpenVPN instance: %s", i.Config.Name)
