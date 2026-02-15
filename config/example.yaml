@@ -1,0 +1,33 @@
+# OpenVPN Manager 配置文件示例
+
+log_level: info
+log_file: /var/log/openvpn-manager.log
+
+# OpenVPN 实例列表
+instances:
+  # 美国服务器示例
+  - name: us-server-1
+    config: /etc/openvpn/configs/us-server-1.ovpn
+    auth_file: /etc/openvpn/auth/us-server-1.txt
+    tun_device: tun10
+    enabled: true
+    
+  # 日本服务器示例
+  - name: jp-server-1
+    config: /etc/openvpn/configs/jp-server-1.ovpn
+    auth_file: /etc/openvpn/auth/jp-server-1.txt
+    tun_device: tun11
+    enabled: true
+    
+  # 英国服务器示例（无需认证文件）
+  - name: uk-server-1
+    config: /etc/openvpn/configs/uk-server-1.ovpn
+    tun_device: tun12
+    enabled: false
+
+# 配置说明：
+# - name: 实例的唯一标识名称
+# - config: OpenVPN 配置文件的完整路径
+# - auth_file: 认证文件路径（包含用户名和密码，每行一个），可选
+# - tun_device: TUN 设备名称（例如 tun0, tun10），必须唯一
+# - enabled: 是否启用此实例（true/false）
