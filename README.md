@@ -51,52 +51,34 @@
 
 ---
 
-## 🚀 快速开始
+## 🚀 一键安装
 
-> **💡 提示**: 推荐使用**二进制安装**，无需 Go 环境，速度快！
-
-### 方法一：二进制安装（推荐）⭐
-
-**最简单！适合所有用户！无需 Go 环境！**
+**超级简单！自动安装所有依赖！**
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/install-binary.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/quick-install.sh | sudo bash
 ```
 
-**一行命令搞定一切！**
-
-- ✅ 自动安装 OpenVPN
-- ✅ 下载预编译程序（无需 Go）
-- ✅ 交互式配置向导
+**这一行命令会自动完成：**
+- ✅ 安装 Git（如需要）
+- ✅ 克隆源码
+- ✅ 安装 OpenVPN
+- ✅ 安装 Go
+- ✅ 下载依赖（已修复）
+- ✅ 编译并安装
+- ✅ **交互式配置向导**
 - ✅ 可选即时启动
 
----
-
-### 方法二：源码编译安装
-
-**适合需要自定义或学习代码的用户**
+### 或者手动安装
 
 ```bash
 # 克隆仓库
 git clone https://github.com/Cd1s/opv-mult.git
 cd opv-mult
 
-# 一键安装（自动安装所有依赖）
+# 运行安装脚本（自动安装依赖）
 sudo bash install.sh
 ```
-
-或者使用超级一键脚本：
-
-```bash
-curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/quick-install.sh | sudo bash
-```
-
-安装脚本会自动：
-- ✅ 安装 OpenVPN（如未安装）
-- ✅ 安装 Go（如未安装）
-- ✅ 下载依赖并编译
-- ✅ 交互式配置向导
-- ✅ 可选即时启动
 
 ---
 
