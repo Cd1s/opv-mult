@@ -53,30 +53,36 @@
 
 ## 🚀 一键安装
 
-**超级简单！自动安装所有依赖！**
+### 方法一：二进制安装（推荐）⭐
+
+**无需 Go 环境！速度最快！**
+
+```bash
+curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/install-binary.sh | sudo bash
+```
+
+**优点**：
+- ✅ 无需安装 Go
+- ✅ 速度快（直接下载编译好的程序）
+- ✅ 支持 AMD64 和 ARM64 架构
+- ✅ 交互式配置向导
+- ✅ 可选即时启动
+
+---
+
+### 方法二：源码编译安装
+
+**适合需要自定义或架构不在支持列表的用户**
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/quick-install.sh | sudo bash
 ```
 
-**这一行命令会自动完成：**
-- ✅ 安装 Git（如需要）
-- ✅ 克隆源码
-- ✅ 安装 OpenVPN
-- ✅ 安装 Go
-- ✅ 下载依赖（已修复）
-- ✅ 编译并安装
-- ✅ **交互式配置向导**
-- ✅ 可选即时启动
-
-### 或者手动安装
+或手动安装：
 
 ```bash
-# 克隆仓库
 git clone https://github.com/Cd1s/opv-mult.git
 cd opv-mult
-
-# 运行安装脚本（自动安装依赖）
 sudo bash install.sh
 ```
 
