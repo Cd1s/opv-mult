@@ -53,41 +53,66 @@
 
 ## 🚀 快速开始
 
-### 安装 Go（如果未安装）
+### 方法一：超级一键安装（推荐）
 
 ```bash
-# Debian/Ubuntu
-sudo apt-get update
-sudo apt-get install -y golang-go
-
-# 或从官网下载最新版本
-# https://go.dev/dl/
+curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/quick-install.sh | sudo bash
 ```
 
-### 一键安装
+这个命令会自动：
+- ✅ 克隆仓库
+- ✅ 安装所有依赖
+- ✅ 编译并安装程序
+- ✅ 交互式配置向导
+
+### 方法二：克隆后一键安装
 
 ```bash
 # 克隆仓库
 git clone https://github.com/Cd1s/opv-mult.git
 cd opv-mult
 
-# 运行安装脚本
-sudo ./install.sh
+# 一键安装（自动安装依赖 + 交互式配置）
+sudo bash install.sh
 ```
 
 安装脚本会自动：
-- ✅ 检查并安装 OpenVPN
-- ✅ 编译程序
-- ✅ 安装到 `/usr/local/bin/`
-- ✅ 创建配置目录
-- ✅ 复制示例配置文件
-- ✅ 安装 systemd 服务（可选）
+- ✅ 检查并安装 OpenVPN（如果未安装）
+- ✅ 检查并安装 Go（如果未安装）
+- ✅ 编译程序并安装到系统
+- ✅ 创建所需的目录结构
+- ✅ **交互式配置向导**（可选）
+  - 自动复制你的 .ovpn 配置文件
+  - 保存用户名和密码
+  - 生成配置文件
+  - 可选择立即启动连接
 
 ---
 
 ## ⚙️ 配置说明
 
-### 1. 准备 OpenVPN 配置文件
+### 方法一：使用交互式配置向导（推荐）
+
+运行安装脚本时选择 "是" 进行配置：
+
+```bash
+sudo bash install.sh
+```
+
+向导会询问：
+1. OpenVPN 配置文件路径（.ovpn 文件）
+2. 是否需要用户名密码认证
+3. 连接名称
+4. TUN 设备名称
+5. 是否立即启动
+
+一切都会自动配置好！
+
+### 方法二：手动配置
+
+如果你想手动配置或添加多个连接：
+
+#### 1. 准备 OpenVPN 配置文件
 
 将你的 ExpressVPN 配置文件（`.ovpn` 文件）放到：
 
@@ -400,4 +425,3 @@ sudo openvpn-manager -c /path/to/config.yaml start
 **使用愉快！Have Fun! 🎉**
 
 </div>
-# opv-mult
