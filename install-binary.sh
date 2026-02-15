@@ -103,85 +103,154 @@ EOF
 
 echo -e "${GREEN}✓${NC} 安装完成"
 
-# 交互式配置
+# 交互式配置 - 循环直到得到明确答案
 echo ""
-echo -e "${YELLOW}是否立即配置 OpenVPN 连接？(y/n)${NC}"
-read -r configure
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${YELLOW}📋 现在配置 OpenVPN 连接${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo "需要准备："
+echo "  1. OpenVPN 配置文件 (.ovpn)"
+echo "  2. 用户名和密码（如果需要认证）"
+echo ""
 
-if [[ "$configure" =~ ^[Yy]$ ]]; then
-    echo ""
-    echo "请输入 OpenVPN 配置文件路径 (.ovpn): "
+while true; do
+    echo -e "${YELLOW}是否立即配置？(y/n)${NC}"
+    read -r configure
+    
+    if [[ "$configure" =~ ^[Yy]$ ]]; then
+        break
+    elif [[ "$configure" =~ ^[Nn]$ ]]; then
+        echo ""
+        echo -e "${YELLOW}⚠ 跳过配置${NC}"
+        echo "稍后可以手动配置："
+        echo "  1. 复制 .ovpn 文件到 /etc/openvpn/configs/"
+        echo "  2. 编辑 /etc/openvpn-manager/config.yaml"
+        echo "  3. 运行: openvpn-manager start"
+        echo ""
+        echo -e "${BLUE}========================================${NC}"
+        echo "✅ 安装成功！"
+        echo -e "${BLUE}========================================${NC}"
+        echo ""
+        echo "常用命令:"
+        echo "  openvpn-manager start   - 启动所有连接"
+        echo "  openvpn-manager stop    - 停止所有连接"
+        echo "  openvpn-manager status  - 查看状态"
+        echo "  openvpn-manager list    - 列出 TUN 设备"
+        echo ""
+        echo "配置文件: /etc/openvpn-manager/config.yaml"
+        echo ""
+        exit 0
+    else
+        echo -e "${RED}请输入 y 或 n${NC}"
+    fi
+done
+
+# 进入配置流程
+echo ""
+echo -e "${GREEN}━━━ 开始配置 ━━━${NC}"
+echo ""
+
+# 获取 OpenVPN 配置文件
+while true; do
+    echo -e "${YELLOW}请输入 OpenVPN 配置文件路径 (.ovpn):${NC}"
     read -r ovpn_path
     
     if [ -f "$ovpn_path" ]; then
         cp "$ovpn_path" /etc/openvpn/configs/
         ovpn_name=$(basename "$ovpn_path")
-        echo -e "${GREEN}✓${NC} 配置文件已复制"
-        
+        echo -e "${GREEN}✓${NC} 配置文件已复制: $ovpn_name"
+        break
+    else
+        echo -e "${RED}❌ 文件不存在: $ovpn_path${NC}"
+        echo "请重新输入或按 Ctrl+C 退出"
+    fi
+done
+
+# 询问认证
+echo ""
+while true; do
+    echo -e "${YELLOW}是否需要用户名密码认证？(y/n)${NC}"
+    read -r need_auth
+    
+    if [[ "$need_auth" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}用户名:${NC}"
+        read -r username
+        echo -e "${YELLOW}密码:${NC}"
+        read -rs password
         echo ""
-        echo -n "是否需要用户名密码认证？(y/n): "
-        read -r need_auth
         
+        echo "$username" > /etc/openvpn/auth/credentials.txt
+        echo "$password" >> /etc/openvpn/auth/credentials.txt
+        chmod 600 /etc/openvpn/auth/credentials.txt
+        auth_file="/etc/openvpn/auth/credentials.txt"
+        echo -e "${GREEN}✓${NC} 认证信息已保存"
+        break
+    elif [[ "$need_auth" =~ ^[Nn]$ ]]; then
         auth_file=""
-        if [[ "$need_auth" =~ ^[Yy]$ ]]; then
-            echo -n "用户名: "
-            read -r username
-            echo -n "密码: "
-            read -rs password
-            echo ""
-            
-            echo "$username" > /etc/openvpn/auth/credentials.txt
-            echo "$password" >> /etc/openvpn/auth/credentials.txt
-            chmod 600 /etc/openvpn/auth/credentials.txt
-            auth_file="/etc/openvpn/auth/credentials.txt"
-            echo -e "${GREEN}✓${NC} 认证信息已保存"
-        fi
-        
-        echo ""
-        echo -n "连接名称 (例如 us-server): "
-        read -r name
-        echo -n "TUN 设备名称 (例如 tun10): "
-        read -r tun
-        
-        # 写入配置
-        cat > /etc/openvpn-manager/config.yaml <<EOF
+        echo -e "${GREEN}✓${NC} 无需认证"
+        break
+    else
+        echo -e "${RED}请输入 y 或 n${NC}"
+    fi
+done
+
+# 连接名称
+echo ""
+echo -e "${YELLOW}连接名称 (例如 us-server):${NC}"
+read -r name
+name=${name:-vpn-server}
+
+# TUN 设备
+echo -e "${YELLOW}TUN 设备名称 (例如 tun10，直接回车使用默认 tun10):${NC}"
+read -r tun
+tun=${tun:-tun10}
+
+# 写入配置
+cat > /etc/openvpn-manager/config.yaml <<EOF
 log_level: info
 log_file: /var/log/openvpn-manager.log
 
 instances:
-  - name: ${name:-vpn-server}
-    config: /etc/openvpn/configs/${ovpn_name}
+  - name: $name
+    config: /etc/openvpn/configs/$ovpn_name
 EOF
-        
-        if [ -n "$auth_file" ]; then
-            echo "    auth_file: $auth_file" >> /etc/openvpn-manager/config.yaml
-        fi
-        
-        cat >> /etc/openvpn-manager/config.yaml <<EOF
-    tun_device: ${tun:-tun10}
+
+if [ -n "$auth_file" ]; then
+    echo "    auth_file: $auth_file" >> /etc/openvpn-manager/config.yaml
+fi
+
+cat >> /etc/openvpn-manager/config.yaml <<EOF
+    tun_device: $tun
     enabled: true
 EOF
-        
-        echo -e "${GREEN}✓${NC} 配置已保存"
-        
-        # 立即启动
+
+echo ""
+echo -e "${GREEN}✓${NC} 配置已保存到 /etc/openvpn-manager/config.yaml"
+
+# 立即启动
+echo ""
+while true; do
+    echo -e "${YELLOW}立即启动连接？(y/n)${NC}"
+    read -r start
+    
+    if [[ "$start" =~ ^[Yy]$ ]]; then
         echo ""
-        echo -e "${YELLOW}立即启动连接？(y/n)${NC}"
-        read -r start
-        
-        if [[ "$start" =~ ^[Yy]$ ]]; then
-            echo ""
-            echo "🚀 正在启动..."
-            openvpn-manager start
-            sleep 2
-            echo ""
-            openvpn-manager status
-        fi
+        echo "🚀 正在启动..."
+        openvpn-manager start
+        sleep 3
+        echo ""
+        openvpn-manager status
+        break
+    elif [[ "$start" =~ ^[Nn]$ ]]; then
+        echo ""
+        echo -e "${GREEN}✓${NC} 稍后可以使用以下命令启动:"
+        echo "  sudo openvpn-manager start"
+        break
     else
-        echo -e "${YELLOW}⚠${NC} 配置文件不存在"
-        echo "请稍后手动配置: /etc/openvpn-manager/config.yaml"
+        echo -e "${RED}请输入 y 或 n${NC}"
     fi
-fi
+done
 
 echo ""
 echo -e "${BLUE}========================================"
