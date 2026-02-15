@@ -116,7 +116,7 @@ echo ""
 
 while true; do
     echo -e "${YELLOW}是否立即配置？(y/n)${NC}"
-    read -r configure
+    read -r configure < /dev/tty
     
     if [[ "$configure" =~ ^[Yy]$ ]]; then
         break
@@ -154,7 +154,7 @@ echo ""
 # 获取 OpenVPN 配置文件
 while true; do
     echo -e "${YELLOW}请输入 OpenVPN 配置文件路径 (.ovpn):${NC}"
-    read -r ovpn_path
+    read -r ovpn_path < /dev/tty
     
     if [ -f "$ovpn_path" ]; then
         cp "$ovpn_path" /etc/openvpn/configs/
@@ -171,13 +171,13 @@ done
 echo ""
 while true; do
     echo -e "${YELLOW}是否需要用户名密码认证？(y/n)${NC}"
-    read -r need_auth
+    read -r need_auth < /dev/tty
     
     if [[ "$need_auth" =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}用户名:${NC}"
-        read -r username
+        read -r username < /dev/tty
         echo -e "${YELLOW}密码:${NC}"
-        read -rs password
+        read -rs password < /dev/tty
         echo ""
         
         echo "$username" > /etc/openvpn/auth/credentials.txt
@@ -198,12 +198,12 @@ done
 # 连接名称
 echo ""
 echo -e "${YELLOW}连接名称 (例如 us-server):${NC}"
-read -r name
+read -r name < /dev/tty
 name=${name:-vpn-server}
 
 # TUN 设备
 echo -e "${YELLOW}TUN 设备名称 (例如 tun10，直接回车使用默认 tun10):${NC}"
-read -r tun
+read -r tun < /dev/tty
 tun=${tun:-tun10}
 
 # 写入配置
@@ -232,7 +232,7 @@ echo -e "${GREEN}✓${NC} 配置已保存到 /etc/openvpn-manager/config.yaml"
 echo ""
 while true; do
     echo -e "${YELLOW}立即启动连接？(y/n)${NC}"
-    read -r start
+    read -r start < /dev/tty
     
     if [[ "$start" =~ ^[Yy]$ ]]; then
         echo ""
