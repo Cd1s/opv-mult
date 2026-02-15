@@ -10,7 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var configFile string
+var (
+	configFile string
+	// Forward declaration - actual implementation in config.go
+	runInteractiveConfig func()
+)
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
@@ -18,6 +22,14 @@ var rootCmd = &cobra.Command{
 	Short: "Manage multiple OpenVPN instances",
 	Long: `OpenVPN Manager - A tool to manage multiple OpenVPN connections simultaneously.
 Each connection creates an independent TUN device that can be used with Sing-box.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// If no subcommand provided, show interactive menu
+		if runInteractiveConfig != nil {
+			runInteractiveConfig()
+		} else {
+			cmd.Help()
+		}
+	},
 }
 
 // Execute runs the root command
