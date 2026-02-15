@@ -60,7 +60,7 @@ esac
 # 下载二进制
 echo ""
 echo "📥 下载程序 ($ARCH)..."
-DOWNLOAD_URL="https://github.com/Cd1s/opv-mult/releases/latest/download/$BINARY"
+DOWNLOAD_URL="https://github.com/Cd1s/opv-mult/releases/download/openvpn-manager/$BINARY"
 
 if command -v wget &> /dev/null; then
     wget -q --show-progress "$DOWNLOAD_URL" -O /usr/local/bin/openvpn-manager 2>&1 || {
