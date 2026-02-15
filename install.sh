@@ -64,6 +64,7 @@ echo -e "${GREEN}✓${NC} Go 已就绪 ($(go version | awk '{print $3}'))"
 # 编译程序
 echo ""
 echo "🔨 正在编译程序..."
+go mod tidy >/dev/null 2>&1
 go mod download >/dev/null 2>&1
 go build -o openvpn-manager main.go
 

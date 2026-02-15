@@ -39,6 +39,10 @@ rm -rf "$INSTALL_DIR"
 git clone "$REPO_URL" "$INSTALL_DIR" >/dev/null 2>&1
 cd "$INSTALL_DIR"
 
+# 修复依赖
+echo "🔧 准备依赖..."
+go mod tidy >/dev/null 2>&1
+
 # 运行安装
 echo "🚀 开始安装..."
 bash install.sh
