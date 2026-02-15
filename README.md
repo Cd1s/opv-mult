@@ -53,39 +53,50 @@
 
 ## 🚀 快速开始
 
-### 方法一：超级一键安装（推荐）
+> **💡 提示**: 推荐使用**二进制安装**，无需 Go 环境，速度快！
+
+### 方法一：二进制安装（推荐）⭐
+
+**最简单！适合所有用户！无需 Go 环境！**
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/quick-install.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/install-binary.sh | sudo bash
 ```
 
-这个命令会自动：
-- ✅ 克隆仓库
-- ✅ 安装所有依赖
-- ✅ 编译并安装程序
-- ✅ 交互式配置向导
+**一行命令搞定一切！**
 
-### 方法二：克隆后一键安装
+- ✅ 自动安装 OpenVPN
+- ✅ 下载预编译程序（无需 Go）
+- ✅ 交互式配置向导
+- ✅ 可选即时启动
+
+---
+
+### 方法二：源码编译安装
+
+**适合需要自定义或学习代码的用户**
 
 ```bash
 # 克隆仓库
 git clone https://github.com/Cd1s/opv-mult.git
 cd opv-mult
 
-# 一键安装（自动安装依赖 + 交互式配置）
+# 一键安装（自动安装所有依赖）
 sudo bash install.sh
 ```
 
+或者使用超级一键脚本：
+
+```bash
+curl -sSL https://raw.githubusercontent.com/Cd1s/opv-mult/main/quick-install.sh | sudo bash
+```
+
 安装脚本会自动：
-- ✅ 检查并安装 OpenVPN（如果未安装）
-- ✅ 检查并安装 Go（如果未安装）
-- ✅ 编译程序并安装到系统
-- ✅ 创建所需的目录结构
-- ✅ **交互式配置向导**（可选）
-  - 自动复制你的 .ovpn 配置文件
-  - 保存用户名和密码
-  - 生成配置文件
-  - 可选择立即启动连接
+- ✅ 安装 OpenVPN（如未安装）
+- ✅ 安装 Go（如未安装）
+- ✅ 下载依赖并编译
+- ✅ 交互式配置向导
+- ✅ 可选即时启动
 
 ---
 
