@@ -65,6 +65,7 @@ func (i *Instance) Start() error {
 		"--log", fmt.Sprintf("/var/log/openvpn-%s.log", i.Config.TunDevice),
 		"--daemon",
 		"--writepid", fmt.Sprintf("/var/run/openvpn-%s.pid", i.Config.TunDevice),
+		"--route-nopull", // Don't let OpenVPN modify routing table
 	}
 
 	// Create command
